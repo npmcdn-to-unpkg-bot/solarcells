@@ -1,75 +1,113 @@
-// // Parse Request and Dispatch
-// module.exports = function (req) {
-//     // Parse it
-//     var url = req.url;
-//     switch (url) {
-//         case '/echo':
-//             return echoHandler();
-//         case '/test':
-//             console.log('testing');
-//             return;
-//         case '/':
-//             console.log('home');
-//             return;
-//         default:
-//             console.error('Not Found');
-//             return;
-//     }
-// };
+var Utils = require('./utils');
+var File = require('./file-server');
 
-
-function Router (server) {
-    this.server = server;
+function Router () {
+    // Router Bundle
+    console.log('Router online');
 }
 
 Router.prototype = {
-    get: function(url, func) {
-        this.server.on(url, function(data) {
-            func();
-            response.write('JSON.stringify(responseBody)');
-            response.end();
-        });
-    },
     route: function(req, res) {
-        var headers = req.headers;
-        // unveilObj(headers);
-        var method = req.method;
-        var url = req.url;
-        var body = [];
-        req.on('error', function(err){
-            console.error(err);
-        }).on('data', function(chunk) {
-            body.push(chunk);
-        }).on('end', function(){
-            body = Buffer.concat(body).toString();
-
-            // Set response
-            res.on('error', function(err) {
-                console.error(err);
-            });
-
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            // response.writeHead(200, {
-            //     'Content-Type': 'application/json'
-            // });
-
-            var responseBody = {
-                headers: headers,
-                method: method,
-                url: url,
-                body: body
-            };
-
-            res.write(JSON.stringify(responseBody));
-            res.end();
-        });
+        console.log('Requested: %s', req.url);
+        // Route
+        switch (req.url) {
+            case '/':
+                this.homepageHandler(req, res);
+                break
+            case '/echo':
+                this.echoHandler(req, res);
+                break
+            case '/favicon.ico':
+                res.statusCode = 404;
+                res.end();
+                break
+            case '/test':
+                var file = File.get('/static/test.html');
+                file.once('ready', function(content, type){
+                    console.log(this);
+                    res.writeHead(200, {
+                        'Content-Type': type
+                    });
+                    res.end(content, 'utf-8');
+                    file = null;
+                    delete this;
+                    console.log(this);
+                    return
+                })
+                break
+            default:
+                res.statusCode = 404;
+                res.write('Page not Found');
+                res.end();
+                break
+        }
     }
 };
 
-module.exports = Router;
+Router.prototype.echoHandler = function (req, res) {
+    var body = [];
+    req.on('error', function(err){
+        Utils.report('echo handler', err);
+    }).on('data', function(chunk){
+        body.push(chunk);
+    }).on('end', function(){
+        body = Buffer.concat(body).toString();
+        res.writeHead(200, {
+            'Content-Type': 'application/json',
+        })
+        res.write(body);
+        res.end();
+    });
+};
+
+Router.prototype.homepageHandler = function (req, res) {
+    var body = [];
+    req.on('error', function(err){
+        Utils.report('homepage handler', err);
+    }).on('data', function(chunk){
+        body.push(chunk);
+    }).on('end', function(){
+        // Response
+        body = Buffer.concat(body).toString();
+        res.writeHead(200, {
+            'Content-Type': 'text/html',
+        })
+        res.write('<h1>Hello</h1>', 'utf-8');
+        res.end();
+    });
+};
 
 
-function echoHandler () {
-    console.log('Handling echo');
-}
+module.exports = new Router();
+
+
+//
+//
+// req.on('error', function(err){
+//     console.error(err);
+// }).on('data', function(chunk) {
+//     body.push(chunk);
+// }).on('end', function(){
+//     body = Buffer.concat(body).toString();
+//
+//     // Set response
+//     res.on('error', function(err) {
+//         console.error(err);
+//     });
+//
+//     res.statusCode = 200;
+//     res.setHeader('Content-Type', 'application/json');
+//     // response.writeHead(200, {
+//     //     'Content-Type': 'application/json'
+//     // });
+//
+//     var responseBody = {
+//         headers: headers,
+//         method: method,
+//         url: url,
+//         body: body
+//     };
+//
+//     res.write(JSON.stringify(responseBody));
+//     res.end();
+// });
