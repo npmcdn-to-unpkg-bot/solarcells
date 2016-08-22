@@ -43,7 +43,7 @@ File.prototype = {
                     return
                 }
                 else {
-                    console.log("%s responded with "+error.code, filePath);
+                    console.log("Request to %s is responded with %s", filePath, error.code);
                     console.log(typeof(error.code));
                     return
                 }

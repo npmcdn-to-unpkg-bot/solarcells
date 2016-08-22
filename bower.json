@@ -1,0 +1,21 @@
+{
+  "name": "Bootfree",
+  "homepage": "https://github.com/Mingggggg/solarcells",
+  "authors": [
+    "Mingyang Wang <wangmingyang2015@163.com>"
+  ],
+  "description": "A fluid grid layout system without limitation.",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "react": "^15.3.1"
+  }
+}
