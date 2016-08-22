@@ -7,40 +7,52 @@ function Router () {
 }
 
 Router.prototype = {
-    route: function(req, res) {
-        console.log('Requested: %s', req.url);
-        // Route
+    route: function(req, res, num) {
+        console.log("%d %s|%s  %s", num, Utils.time(), req.method, req.url);
+        // 1st Route
+        switch (req.url.indexOf('.') > -1) {
+            case true:
+                this.serveFile(req, res);
+                break;
+            case false:
+                this.servePage(req, res);
+                break;
+            default:
+                console.log('First route failed');
+                break;
+        }
+    },
+    servePage: function(req, res) {
         switch (req.url) {
             case '/':
                 this.homepageHandler(req, res);
-                break
+                break;
             case '/echo':
                 this.echoHandler(req, res);
-                break
+                break;
             case '/favicon.ico':
                 res.statusCode = 404;
                 res.end();
-                break
+                break;
             case '/test':
-                var file = File.get('/static/test.html');
-                file.once('ready', function(content, type){
-                    console.log(this);
-                    res.writeHead(200, {
-                        'Content-Type': type
-                    });
-                    res.end(content, 'utf-8');
-                    file = null;
-                    delete this;
-                    console.log(this);
-                    return
-                })
-                break
+                this.testHandler(req, res);
+                break;
             default:
                 res.statusCode = 404;
                 res.write('Page not Found');
                 res.end();
-                break
+                break;
         }
+    },
+    serveFile: function(req, res) {
+        var file = File.get(req.url);
+        file.once('ready', function(content, type){
+            res.writeHead(200, {
+                'Content-Type': type
+            });
+            res.end(content, 'utf-8');
+            file = null;
+        });
     }
 };
 
@@ -57,6 +69,26 @@ Router.prototype.echoHandler = function (req, res) {
         })
         res.write(body);
         res.end();
+    });
+};
+
+Router.prototype.testHandler = function (req, res) {
+    var body = [];
+    req.on('error', function(err){
+        Utils.report('test handler', err);
+    }).on('data', function(chunk){
+        body.push(chunk);
+    }).on('end', function(){
+        body = Buffer.concat(body).toString();
+
+        var file = File.get('test'+req.url+'.html');
+        file.once('ready', function(content, type){
+            res.writeHead(200, {
+                'Content-Type': type
+            });
+            res.end(content, 'utf-8');
+            file = null;
+        });
     });
 };
 
@@ -78,36 +110,5 @@ Router.prototype.homepageHandler = function (req, res) {
 };
 
 
+
 module.exports = new Router();
-
-
-//
-//
-// req.on('error', function(err){
-//     console.error(err);
-// }).on('data', function(chunk) {
-//     body.push(chunk);
-// }).on('end', function(){
-//     body = Buffer.concat(body).toString();
-//
-//     // Set response
-//     res.on('error', function(err) {
-//         console.error(err);
-//     });
-//
-//     res.statusCode = 200;
-//     res.setHeader('Content-Type', 'application/json');
-//     // response.writeHead(200, {
-//     //     'Content-Type': 'application/json'
-//     // });
-//
-//     var responseBody = {
-//         headers: headers,
-//         method: method,
-//         url: url,
-//         body: body
-//     };
-//
-//     res.write(JSON.stringify(responseBody));
-//     res.end();
-// });

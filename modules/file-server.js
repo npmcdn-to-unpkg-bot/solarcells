@@ -1,13 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 const events = require('events');
+
 function File () {
     // File Server Bundle
 }
 
 File.prototype = {
     get: function (filePath) {
-        var filePath = '.' + filePath;
+        // Dest to 'dist' when production
+        var filePath = './static/src/' + filePath;
         var extname = path.extname(filePath);
         var contentType = 'text/html';
         var file = new events.EventEmitter();
