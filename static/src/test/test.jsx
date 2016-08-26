@@ -94,6 +94,7 @@ var ModuleNav = React.createClass({
         var modules = props.modules.map(function(name, i){
             var load = function () {
                 props.load(name);
+                props.eventManager.trigger('test', name, this);
             }
             return <button onClick={load} key={i}>{name}</button>;
         });
@@ -112,7 +113,8 @@ var GeneratorSpecs = React.createClass({
         };
         return (
             <card>
-                <ModuleNav modules={this.props.modules} mode={this.props.mode} load={this.props.load} />
+                <ModuleNav modules={this.props.modules} mode={this.props.mode}
+                    load={this.props.load} eventManager={this.props.eventManager}/>
                 <row style={style} />
             </card>
         );
@@ -144,6 +146,13 @@ var GeneratorPreview = React.createClass({
             height: '400px'
         };
         var module;
+        this.props.eventManager.bind('test', (function(self){
+            return function (module, caller) {
+                console.log(self.props);
+                console.log(caller);
+                console.log(module);
+            }
+        })(this));
         switch (this.props.mode) {
             case 'button':
                 module = <button>{'button'}</button>;
@@ -179,12 +188,14 @@ var Generator = React.createClass({
     },
     render: function() {
         this._cnt+=1;
+        var eventManager = new MicroEvent();
         console.log('Generator %dth init', this._cnt);
         var config = this.props.config;
         return (
             <div>
-                <GeneratorSpecs modules={config.modules} mode={this.state.module} load={this.loadModule}/>
-                <GeneratorPreview mode={this.state.module}/>
+                <GeneratorSpecs modules={config.modules} mode={this.state.module}
+                    load={this.loadModule} eventManager={eventManager} />
+                <GeneratorPreview mode={this.state.module} eventManager={eventManager}/>
             </div>
         );
     }
