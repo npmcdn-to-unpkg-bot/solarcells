@@ -81,7 +81,7 @@ Router.prototype.testHandler = function (req, res) {
     }).on('end', function(){
         body = Buffer.concat(body).toString();
 
-        var file = File.get('test'+req.url+'.html');
+        var file = File.get('test/test.html');
         file.once('ready', function(content, type){
             res.writeHead(200, {
                 'Content-Type': type
@@ -95,17 +95,20 @@ Router.prototype.testHandler = function (req, res) {
 Router.prototype.homepageHandler = function (req, res) {
     var body = [];
     req.on('error', function(err){
-        Utils.report('homepage handler', err);
+        Utils.report('home handler', err);
     }).on('data', function(chunk){
         body.push(chunk);
     }).on('end', function(){
-        // Response
         body = Buffer.concat(body).toString();
-        res.writeHead(200, {
-            'Content-Type': 'text/html',
-        })
-        res.write('<h1>Hello</h1>', 'utf-8');
-        res.end();
+
+        var file = File.get('test/test.html');
+        file.once('ready', function(content, type){
+            res.writeHead(200, {
+                'Content-Type': type
+            });
+            res.end(content, 'utf-8');
+            file = null;
+        });
     });
 };
 

@@ -9,7 +9,9 @@ function File () {
 File.prototype = {
     get: function (filePath) {
         // Dest to 'dist' when production
-        var filePath = './static/src/' + filePath;
+        var src = './static/src/'
+
+        var filePath = src + filePath;
         var extname = path.extname(filePath);
         var contentType = 'text/html';
         var file = new events.EventEmitter();
@@ -17,6 +19,9 @@ File.prototype = {
         switch (extname) {
             case '.js':
                 contentType = 'text/javascript';
+                break;
+            case '.jsx':
+                contentType = 'text/babel';
                 break;
             case '.css':
                 contentType = 'text/css';
@@ -35,8 +40,9 @@ File.prototype = {
                 break;
         }
 
+        if (filePath == src+'/favicon.ico') return file;
+
         fs.readFile(filePath, function(error, content){
-            console.log('reading');
             if (error) {
                 if (error.code == 'ENOENT') {
                     console.log("Access to %s is rejected", filePath);

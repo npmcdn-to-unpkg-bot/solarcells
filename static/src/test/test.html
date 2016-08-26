@@ -1,5 +1,67 @@
-<head>
-	<link rel='stylesheet' href='test/test.css'></link>
-</head>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello React!</title>
 
-<div>Hi guys</div>
+    <link rel='stylesheet' href='test/test.css'></link>
+
+    <script src="build/react.js"></script>
+    <script src="build/react-dom.js"></script>
+    <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+    <script src="https://npmcdn.com/jquery@3.1.0/dist/jquery.min.js"></script>
+
+  </head>
+  <body>
+    <div id="example"></div>
+    <div id="example2"></div>
+    <grid id='layout' style="width:100%;height:100px">
+    </grid>
+    <grid id='generator' class='col'>
+        <card id='specs'>
+            <row>
+                <button>Button</button>
+                <button>Grid</button>
+                <button>Card</button>
+                <button>Nav</button>
+            </row>
+            <row style="height:400px;">
+            </row>
+        </card>
+
+        <card id='preview'>
+            <grid style="width:50%;float:left">
+                <card>
+                    <box>
+                        <img></img>
+                    </box>
+                    <row style='height:30px'>
+                    </row>
+                </card>
+                <card>
+                    <box>
+                        <img></img>
+                    </box>
+                    <row style='height:80px'>
+                    </row>
+                </card>
+                <card>
+                    <box>
+                        <img></img>
+                    </box>
+                    <row style='height:100px'>
+                    </row>
+                </card>
+                <card>
+                    <box>
+                        <img></img>
+                    </box>
+                    <row>
+                    </row>
+                </card>
+            </grid>
+        </card>
+    </grid>
+    <script type="text/babel" src='test/test.jsx'></script>
+  </body>
+</html>

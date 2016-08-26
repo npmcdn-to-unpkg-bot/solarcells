@@ -1,3 +1,94 @@
-div {
-	background: red;
+body {
+    background: cadetblue;
+    margin: 0;
+    padding: 0% 4%;
+}
+
+.active {
+    background: red;
+}
+
+.col:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 50%;
+    background-color: #434750;
+}
+
+contain {
+    display: block;
+    overflow: auto;
+}
+
+center {
+    position: absolute;
+    display: block;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translateY(-50%) translateX(-50%);
+    -moz-transform: translateY(-50%) translateX(-50%);
+    transform: translateY(-50%) translateX(-50%);
+}
+
+center grid {
+    overflow: visible;
+}
+
+grid {
+    position: relative;
+	width: 100%;
+	background: lightgray;
+	display:block;
+    overflow: auto;
+}
+
+grid card {
+    position: relative;
+	width: 50%;
+    padding: 10px 5px 10px 10px;
+    box-sizing: border-box;
+	background: gray;
+	display:block;
+    float:left;
+}
+
+grid card:nth-of-type(2n) {
+    padding: 10px 10px 10px 5px;
+    float:right;
+}
+
+grid card box {
+	padding: 10px;
+	background: lightgreen;
+	display:block;
+}
+
+grid card box img {
+	width:100%;
+	padding-bottom:100%;
+    background: bisque no-repeat center;
+    background-size: contain;
+}
+
+grid card row {
+	height: 50px;
+	background: lightblue;
+	display:block;
+}
+
+row button {
+    width:25%;
+    padding: 5px 10px;
+    float: left;
+    outline: 0 !important;
+    border: none;
+    box-shadow: none;
+    background: antiquewhite;
+}
+
+row button:hover {
+    background: lightyellow;
 }
