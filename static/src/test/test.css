@@ -2,8 +2,6 @@ body {
     background: cadetblue;
     margin: 0;
     padding: 0% 0%;
-    font-family: 'Pacifico', cursive;
-    font-family: 'Pattaya', sans-serif;
     font-family: 'Raleway', sans-serif;
 }
 
@@ -21,16 +19,15 @@ body {
     font-size: 30px;
     background: #7fb981;
     color: white;
-    transition: all 0.3s ease-in-out;
-    opacity: 0.4;
-    -webkit-filter: blur(5px);
+    transition: all 0.3s ease;
+    opacity: 0.6;
     font-family: 'Raleway', sans-serif
 }
 
 .btn-div:hover {
     /*#8d83a7*/
-    opacity: 1;
-    -webkit-filter: blur(0px);
+    background: #f0f8ff;
+    color: #989797;
 }
 
 .col:before {

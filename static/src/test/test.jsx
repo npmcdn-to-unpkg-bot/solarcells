@@ -23,6 +23,34 @@ MicroEvent.prototype = {
     }
 };
 
+var Config = {
+    defaultStyle: {
+        'button': {
+            marginTop: "10%",
+            padding: "80px 24px",
+            outline: "0 !important",
+            borderRadius: "50%",
+            border: "0",
+            boxShadow: "none",
+            fontSize: "30px",
+            background: "#7fb981",
+            color: "white",
+            opacity: 0.6,
+            fontFamily: "'Raleway', sans-serif"
+        },
+    },
+};
+
+Config['customStyle'] = Config['defaultStyle'];
+
+var EventCenter = new MicroEvent();
+
+$(document).ready(function(){
+    $('#preload-content').css({
+        opacity:1
+    });
+});
+
 var ModuleNav = React.createClass({
     render: function () {
         var self = this;
@@ -41,16 +69,81 @@ var ModuleNav = React.createClass({
     }
 });
 
+var LiveInput = React.createClass({
+    getInitialState: function () {
+        return {
+            text: this.props.params
+        }
+    },
+    onChange: function(e) {
+        var attr = this.props.name;
+        var value = e.target.value;
+        this.setState({
+            text: value
+        });
+        if (!Number(value)) {
+            Config['customStyle'][this.props.mode][attr] = value;
+            EventCenter.trigger('updateView');
+        }
+    },
+    render: function () {
+        return (
+            <box>
+                <span>{this.props.name}&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <input onChange={this.onChange} value={this.state.text}/>
+            </box>
+        );
+    }
+});
+
+var ButtonSpecs = React.createClass({
+    render: function () {
+        var style = Config['defaultStyle']['button'];
+        var attr = Object.keys(style);
+        var inputGroup = [];
+        for (var i = 0; i < attr.length; i++) {
+            var key = attr[i];
+            inputGroup.push(
+                <LiveInput mode={'button'} name={key} params={style[key]} key={i}
+                    eventManager={this.props.eventManager}/>
+            );
+        }
+
+
+        return (
+            <row>
+                {inputGroup}
+            </row>
+        );
+    }
+});
+
+var ModuleManager = React.createClass({
+    render: function () {
+        var module;
+        switch (this.props.mode) {
+            case 'button':
+                module = <ButtonSpecs eventManager={this.props.eventManager} />
+                break;
+            default:
+                module = <box>{'default'}</box>
+                break;
+        }
+        return (module);
+    }
+});
+
 var GeneratorSpecs = React.createClass({
     render: function () {
         var style = {
             height: '400px'
         };
+        console.log(1);
         return (
             <card>
                 <ModuleNav modules={this.props.modules} mode={this.props.mode}
                     load={this.props.load} eventManager={this.props.eventManager}/>
-                <row style={style} />
+                <ModuleManager mode={this.props.mode} eventManager={this.props.eventManager} />
             </card>
         );
     }
@@ -59,25 +152,23 @@ var GeneratorSpecs = React.createClass({
 var ButtonModule = React.createClass({
     getInitialState: function () {
         return {
-            custom_style: {
-            }
+            mode: 0
         }
     },
     render: function () {
-        var style = {
-            'border': '0',
-            'outline': '0',
-            'boxShadow': '0px 3px 0px #3298ff',
-            'padding': '8px 16px',
-            'background': '#2E71FF',
-            'borderRadius': '5px',
-            'color': '#FFFFFF',
-        }
+        var self = this;
+        var custom_style = Config['customStyle']['button'];
+        EventCenter.bind('updateView', (function(self){
+            return function (attr, value) {
+                EventCenter.unbind('updateView');
+                self.setState({mode:1});
+            }
+        })(self));
         return (
-            <button style={style}>{'button'}</button>
+            <button style={custom_style}>button</button>
         );
     }
-})
+});
 
 
 
@@ -146,7 +237,7 @@ var Generator = React.createClass({
             </div>
         );
     }
-})
+});
 
 var config = {
     modules: ['button', 'grid', 'card', 'popover'],
