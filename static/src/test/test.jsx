@@ -23,78 +23,13 @@ MicroEvent.prototype = {
     }
 };
 
-
-
-
-
-var Photo = React.createClass({
-  toggleLiked: function() {
-    this.setState({
-      liked: !this.state.liked
-    });
-  },
-
-  getInitialState: function() {
-    return {
-      liked: false
-    };
-  },
-
-  render: function() {
-    var buttonClass = this.state.liked ? 'active' : '';
-    return (
-      <div className='photo'>
-        <div className='bar'>
-          <button onClick={this.toggleLiked} className={buttonClass}>
-            ♥
-          </button>
-          <span>{this.props.caption}</span>
-        </div>
-      </div>
-    );
-  }
-});
-
-var PhotoGallery = React.createClass({
-
-  render: function() {
-
-    var photos = this.props.photos.map(function(photo, i) {
-      return <Photo src={photo.url} caption={photo.caption} key={i}/>
-    });
-
-    return (
-      <div className='photo-gallery'>
-        {photos}
-      </div>
-    );
-  }
-});
-
-var data = [
-  {
-    url: 'http://tinyurl.com/lkevsb9',
-    caption: 'Hong Kong!'
-  },
-  {
-    url: 'http://tinyurl.com/mxkwh56',
-    caption: 'Cows'
-  },
-  {
-    url: 'http://tinyurl.com/nc7jv28',
-    caption: 'Scooters'
-  }
-];
-
-ReactDOM.render(<PhotoGallery photos={data} />, document.getElementById('example2'));
-
 var ModuleNav = React.createClass({
     render: function () {
-        var props = this.props;
-        var modules = props.modules.map(function(name, i){
+        var self = this;
+        var modules = self.props.modules.map(function(name, i){
             var load = function () {
-                props.load(name);
-                props.eventManager.trigger('test', name, this);
+                self.props.load(name);
+                self.props.eventManager.trigger('test', name, self.props);
             }
             return <button onClick={load} key={i}>{name}</button>;
         });
@@ -129,9 +64,21 @@ var ButtonModule = React.createClass({
         }
     },
     render: function () {
-        return
+        var style = {
+            'border': '0',
+            'outline': '0',
+            'boxShadow': '0px 3px 0px #3298ff',
+            'padding': '8px 16px',
+            'background': '#2E71FF',
+            'borderRadius': '5px',
+            'color': '#FFFFFF',
+        }
+        return (
+            <button style={style}>{'button'}</button>
+        );
     }
 })
+
 
 
 var GeneratorPreview = React.createClass({
@@ -155,7 +102,7 @@ var GeneratorPreview = React.createClass({
         })(this));
         switch (this.props.mode) {
             case 'button':
-                module = <button>{'button'}</button>;
+                module = <ButtonModule />;
                 break;
             case 'card':
                 module = <card>{'card'}</card>;
@@ -202,7 +149,7 @@ var Generator = React.createClass({
 })
 
 var config = {
-    modules: ['button', 'grid', 'card', 'popover']
+    modules: ['button', 'grid', 'card', 'popover'],
 };
 
 ReactDOM.render(
