@@ -1,20 +1,16 @@
 {
-  "name": "solarcell",
+  "name": "solarcells",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Mingggggg/solarcells.git"
+    "url": "git@git.evennode.com:70dbfde2a9d43f1829c6d9351989b89d.git"
   },
-  "author": "Mingyang Wang",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Mingggggg/solarcells/issues"
-  },
-  "homepage": "https://github.com/Mingggggg/solarcells#readme"
+  "author": "Mingyang",
+  "license": "ISC"
 }
