@@ -23,6 +23,26 @@ MicroEvent.prototype = {
     }
 };
 
+var EventCenter = new MicroEvent();
+
+var Buffer = [];
+
+EventCenter.bind('onDragStart', function (module) {
+    Buffer.push(module);
+    console.log(Buffer);
+    EventCenter.bind('onDropFilter', function (append){
+        EventCenter.unbind('onDropFilter');
+        append(Buffer.pop(0));
+    });
+});
+
+
+
+
+var clone = function (obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+
 var Config = {
     defaultStyle: {
         'button': {
@@ -31,7 +51,7 @@ var Config = {
             outline: "0 !important",
             borderRadius: "50%",
             border: "0",
-            boxShadow: "none",
+            boxShadow: "0",
             fontSize: "30px",
             background: "#7fb981",
             color: "white",
@@ -39,11 +59,17 @@ var Config = {
             fontFamily: "'Raleway', sans-serif"
         },
     },
+    modules: {
+        'structure': ['grid', 'row', 'box'],
+        'component': ['card', 'button', 'span', 'input']
+    }
+
 };
 
 Config['customStyle'] = Config['defaultStyle'];
 
-var EventCenter = new MicroEvent();
+
+
 
 $(document).ready(function(){
     $('#preload-content').css({
@@ -54,17 +80,43 @@ $(document).ready(function(){
 var ModuleNav = React.createClass({
     render: function () {
         var self = this;
-        var modules = self.props.modules.map(function(name, i){
+        var c_categ = self.props.mode.categ;
+        var c_name = self.props.mode.module;
+
+        var structure = ['structure', 'component'].map(function(categ, i){
             var load = function () {
-                self.props.load(name);
-                self.props.eventManager.trigger('test', name, self.props);
+                self.props.load(categ, Config.modules[categ][0]);
             }
-            return <button onClick={load} key={i}>{name}</button>;
+            if (categ == c_categ) {
+                return <button className='active' onClick={load} key={i}>{categ}</button>;
+            } else {
+                return <button onClick={load} key={i}>{categ}</button>;
+            }
+        });
+
+        var len = self.props.modules.length;
+        var style = {
+            width: (100/len)+'%'
+        };
+        var component = self.props.modules.map(function(name, i){
+            var load = function () {
+                self.props.load(c_categ, name);
+            }
+            if (name == c_name) {
+                return <button className='active' style={style} onClick={load} key={i}>{name}</button>;
+            } else {
+                return <button style={style} onClick={load} key={i}>{name}</button>;
+            }
         });
         return (
-            <row>
-                {modules}
-            </row>
+            <div className='Grid' id='module-nav'>
+                <div className='structure Row'>
+                    {structure}
+                </div>
+                <div className='component Row'>
+                    {component}
+                </div>
+            </div>
         );
     }
 });
@@ -88,10 +140,14 @@ var LiveInput = React.createClass({
     },
     render: function () {
         return (
-            <box>
-                <span>{this.props.name}&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                <input onChange={this.onChange} value={this.state.text}/>
-            </box>
+            <tr>
+                <th>
+                    <span>{this.props.name}&nbsp;&nbsp;</span>
+                </th>
+                <th>
+                    <input onChange={this.onChange} value={this.state.text}/>
+                </th>
+            </tr>
         );
     }
 });
@@ -104,16 +160,15 @@ var ButtonSpecs = React.createClass({
         for (var i = 0; i < attr.length; i++) {
             var key = attr[i];
             inputGroup.push(
-                <LiveInput mode={'button'} name={key} params={style[key]} key={i}
-                    eventManager={this.props.eventManager}/>
+                <LiveInput mode={'button'} name={key} params={style[key]} key={i}/>
             );
         }
-
-
         return (
-            <row>
-                {inputGroup}
-            </row>
+            <table>
+                <tbody>
+                    {inputGroup}
+                </tbody>
+            </table>
         );
     }
 });
@@ -121,12 +176,12 @@ var ButtonSpecs = React.createClass({
 var ModuleManager = React.createClass({
     render: function () {
         var module;
-        switch (this.props.mode) {
+        switch (this.props.mode.module) {
             case 'button':
-                module = <ButtonSpecs eventManager={this.props.eventManager} />
+                module = <ButtonSpecs />
                 break;
             default:
-                module = <box>{'default'}</box>
+                module = <div className='Box'>{this.props.mode.module}</div>
                 break;
         }
         return (module);
@@ -136,78 +191,77 @@ var ModuleManager = React.createClass({
 var GeneratorSpecs = React.createClass({
     render: function () {
         var style = {
-            height: '400px'
-        };
-        console.log(1);
+            boxShadow: '0px 0px 8px rgba(58, 58, 58, 0.74)',
+            background: 'rgba(101,87,87,0.75)',
+            position: 'absolute',
+            top: '10px',
+            bottom: '10px',
+            left: '10px',
+            right: '10px',
+            overflowY: 'hidden',
+            borderRadius: '1px'
+        }
         return (
-            <card>
-                <ModuleNav modules={this.props.modules} mode={this.props.mode}
-                    load={this.props.load} eventManager={this.props.eventManager}/>
-                <ModuleManager mode={this.props.mode} eventManager={this.props.eventManager} />
-            </card>
+            <div className="Card">
+                <div className='Box' style={style}>
+                    <ModuleNav modules={this.props.modules} mode={this.props.mode}
+                        load={this.props.load} />
+                    <ModuleManager mode={this.props.mode} />
+                </div>
+            </div>
         );
     }
 });
 
 var ButtonModule = React.createClass({
-    getInitialState: function () {
-        return {
-            mode: 0
-        }
-    },
     render: function () {
-        var self = this;
-        var custom_style = Config['customStyle']['button'];
+        var style = clone(Config.customStyle.button);
+
         EventCenter.bind('updateView', (function(self){
             return function (attr, value) {
                 EventCenter.unbind('updateView');
-                self.setState({mode:1});
+                self.setState({});
             }
-        })(self));
+        })(this));
+
+        var onDragStart = function (event) {
+            EventCenter.trigger('onDragStart', React.createElement('button', {style: style}, 'button'));
+        }
+
         return (
-            <button style={custom_style}>button</button>
+            <button draggable='true' onDragStart={onDragStart} style={style}>button</button>
         );
     }
 });
 
 
 
+
+
 var GeneratorPreview = React.createClass({
-    getInitialState: function () {
-        return {
-            custom_style: {
-            }
-        }
-    },
     render: function () {
-        var style = {
-            height: '400px'
-        };
+        var style = {};
         var module;
-        this.props.eventManager.bind('test', (function(self){
-            return function (module, caller) {
-                console.log(self.props);
-                console.log(caller);
-                console.log(module);
-            }
-        })(this));
         switch (this.props.mode) {
             case 'button':
-                module = <ButtonModule />;
+                module = <ButtonModule test={'hello'}/>;
                 break;
             case 'card':
-                module = <card>{'card'}</card>;
+                module = <div className="Card">{'card'}</div>;
+                break;
+            case 'drag':
+                module = <div className="Card">{"I'm flying!"}</div>;
                 break;
             default:
-                module = <grid>{'grid'}</grid>;
+                module = <div className='Grid'>{'grid'}</div>;
                 break;
         };
         return (
-            <card style={style}>
-                <center>
+            <div className="Card">
+                <div className='Center'>
                     {module}
-                </center>
-            </card>
+                </div>
+            </div>
         );
     }
 });
@@ -216,34 +270,91 @@ var Generator = React.createClass({
     _cnt: 0,
     getInitialState: function(){
         return {
-            module: this.props.config.modules[0]
+            categ: 'component',
+            module: 'button'
         }
     },
-    loadModule: function(module) {
+    loadModule: function(categ, module) {
         return this.setState({
+            categ: categ,
             module: module
         });
     },
     render: function() {
         this._cnt+=1;
-        var eventManager = new MicroEvent();
         console.log('Generator %dth init', this._cnt);
-        var config = this.props.config;
+        var mode = clone(this.state);
         return (
             <div>
-                <GeneratorSpecs modules={config.modules} mode={this.state.module}
-                    load={this.loadModule} eventManager={eventManager} />
-                <GeneratorPreview mode={this.state.module} eventManager={eventManager}/>
+                <GeneratorSpecs modules={Config.modules[mode.categ]} mode={mode}
+                    load={this.loadModule} />
+                <GeneratorPreview mode={this.state.module}/>
             </div>
         );
     }
 });
 
-var config = {
-    modules: ['button', 'grid', 'card', 'popover'],
-};
+ReactDOM.render(
+    <Generator />,
+    document.getElementById('generator')
+);
+
+var Gear = React.createClass({
+    getInitialState: function() {
+        return {
+            children: [<div className='Row' key={1}>hello</div>, <div className='Row' key={2}>hello again</div>]
+        }
+    },
+    drop: function (event) {
+        console.log(this.props);
+        event.preventDefault();
+        EventCenter.trigger('onDropFilter', this.append);
+    },
+    onDragOver: function (event) {
+        event.preventDefault();
+    },
+    append: function (newChild) {
+        this.setState({
+            children: [newChild]
+        });
+    },
+    render: function () {
+
+        return (
+            <div className={this.props.className} onDrop={this.drop} onDragOver={this.onDragOver}>
+                {this.state.children}
+            </div>
+        );
+    }
+});
+
+var Layout = React.createClass({
+//     getInitialState: function () {
+//         return {
+//             dom: <div className='main-view Box' onDrop={()}>hello</div>
+//         }
+//     },
+    render: function () {
+        // var depth = Object.keys(this.state);
+        // for (var i = 0; i < depth.length; i++) {
+        //     var lvl = depth[i];
+        //     console.log(this.state[lvl]);
+        // }
+        var drop = function (event) {
+            event.preventDefault();
+            EventCenter.trigger('onDropFilter', event.target);
+        }
+        var onDragOver = function (event) {
+            event.preventDefault();
+        }
+        var base = <div onDrop={drop} onDragOver={onDragOver}>hello world</div>;
+        return (
+            <Gear className='main-view Box' />
+        );
+    }
+});
 
 ReactDOM.render(
-    <Generator config={config} />,
-    document.getElementById('generator')
+    <Layout />,
+    document.getElementById('layout')
 );

@@ -31,7 +31,7 @@ Router.prototype = {
                 this.echoHandler(req, res);
                 break;
             case '/favicon.ico':
-                res.statusCode = 404;
+                res.statusCode = 200;
                 res.end();
                 break;
             case '/test':

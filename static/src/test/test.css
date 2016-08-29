@@ -5,9 +5,13 @@ body {
     font-family: 'Raleway', sans-serif;
 }
 
-.active {
-    background: red;
+table {
+    width: 100%;
+    padding: 10px 0px;
+    background: rgba(236, 211, 229, 0.1);
 }
+
+
 
 .btn-div {
     margin-top: 10%;
@@ -30,7 +34,7 @@ body {
     color: #989797;
 }
 
-.col:before {
+/*.col:before {
     content: '';
     position: absolute;
     top: 0;
@@ -38,14 +42,15 @@ body {
     left: 50%;
     width: 50%;
     background-color: #434750;
-}
+}*/
+
 
 contain {
     display: block;
     overflow: auto;
 }
 
-center {
+.Center {
     position: absolute;
     display: block;
     top: 50%;
@@ -55,19 +60,19 @@ center {
     transform: translateY(-50%) translateX(-50%);
 }
 
-center grid {
+.Center .Row {
     overflow: visible;
 }
 
-grid {
+.Grid {
     position: relative;
 	width: 100%;
-	background: lightgray;
+	background: #fd7f7f;
 	display:block;
     overflow: auto;
 }
 
-grid card {
+.Grid .Card {
     position: relative;
 	width: 50%;
     padding: 10px 5px 10px 10px;
@@ -77,43 +82,77 @@ grid card {
     float:left;
 }
 
-grid card:nth-of-type(2n) {
+.Grid .Card:nth-of-type(2n) {
     padding: 10px 10px 10px 5px;
     float:right;
 }
 
-grid card box {
+.Grid .Card .Box {
 	padding: 10px;
-	background: lightgreen;
+    background: rgba(236, 211, 229, 0.1);
 	display:block;
 }
 
-grid card box img {
+.Grid .Card .Box img {
 	width:100%;
 	padding-bottom:100%;
     background: bisque no-repeat center;
     background-size: contain;
 }
 
-grid card row {
-	height: 50px;
-	background: lightblue;
+.Grid .Card .Row {
+	/*height: 50px;*/
 	display:block;
+    overflow: auto;
 }
 
-row button {
-    width:25%;
+.Row button {
     padding: 5px 10px;
     float: left;
     outline: 0 !important;
     border: none;
     box-shadow: none;
     background: antiquewhite;
+    color: white;
+    font-family: 'Raleway', sans-serif;
 }
 
-row button:hover {
-    background: lightyellow;
+.Row button:hover {
+    background: rgba(175,125,125,0.5);
 }
+
+.Row button {
+    width: 50%;
+    background: rgba(35,17,17,0.25);
+    transition: all 0.6s ease;
+}
+.Row .active {
+    background: rgba(175,125,125,0.8);
+}
+
+#generator > div > .Card {
+    height: 45vh;
+    padding: 0;
+    overflow-y: hidden;
+}
+
+#module-nav {
+    background: transparent;
+}
+
+#module-nav .Row {
+    background: transparent;
+}
+
+#layout .main-view {
+    position: absolute;
+    top: 10px;
+    background: rgba(255,0,0,0.2);
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+}
+
 
 /*button:active {
     transform: translateY(3px);
