@@ -25,7 +25,7 @@ Router.prototype = {
     servePage: function(req, res) {
         switch (req.url) {
             case '/':
-                this.homepageHandler(req, res);
+                this.testHandler(req, res);
                 break;
             case '/echo':
                 this.echoHandler(req, res);

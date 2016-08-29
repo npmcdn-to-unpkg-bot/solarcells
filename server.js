@@ -12,4 +12,4 @@ var server = http.createServer(function(request, response){
     g_cnt+=1;
 
     Router.route(request, response, g_cnt);
-}).listen(1209);
+}).listen(process.env.PORT || 1209);
