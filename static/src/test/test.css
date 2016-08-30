@@ -52,7 +52,6 @@ contain {
 
 .Center {
     position: absolute;
-    display: block;
     top: 50%;
     left: 50%;
     -webkit-transform: translateY(-50%) translateX(-50%);
@@ -153,6 +152,10 @@ contain {
     right: 10px;
 }
 
+.Button:active {
+    -webkit-filter: brightness(80%);
+    filter: brightness(80%);
+}
 
 /*button:active {
     transform: translateY(3px);

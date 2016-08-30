@@ -50,9 +50,8 @@ var clone = function (obj) {
 var Config = {
     defaultStyle: {
         'button': {
-            marginTop: "10%",
-            padding: "80px 24px",
-            outline: "0 !important",
+            padding: "100px",
+            outline: "0",
             borderRadius: "50%",
             border: "0",
             boxShadow: "0",
@@ -60,8 +59,17 @@ var Config = {
             background: "#7fb981",
             color: "white",
             opacity: 0.6,
-            fontFamily: "'Raleway', sans-serif"
+            fontFamily: "'Raleway', sans-serif",
+            position: 'relative',
+            cursor: 'pointer'
         },
+        'grid': {
+            position: 'relative;',
+            width: '100%',
+            background: '#fd7f7f',
+            display: 'block',
+            overflow: 'auto',
+        }
     },
     modules: {
         'structure': ['grid', 'row', 'box'],
@@ -182,7 +190,7 @@ var ModuleManager = React.createClass({
         var module;
         switch (this.props.mode.module) {
             case 'button':
-                module = <ButtonSpecs />
+                module = <Specs />
                 break;
             default:
                 module = <div className='Box'>{this.props.mode.module}</div>
@@ -217,6 +225,8 @@ var GeneratorSpecs = React.createClass({
     }
 });
 
+
+// Component
 var ButtonModule = React.createClass({
     render: function () {
         var style = clone(Config.customStyle.button);
@@ -230,12 +240,45 @@ var ButtonModule = React.createClass({
 
         var onDragStart = function (event) {
             var drag_id = 'drop_'+EventCenter.drag_cnt;
-            var elem = React.createElement('button', {style: style, key: drag_id}, 'button');
+            var elem = <button className='Button' style={style} key={drag_id}>
+                            <span className='Center'>button</span>
+                       </button>;
             EventCenter.trigger('onDragStart', elem);
         }
 
         return (
-            <button draggable='true' onDragStart={onDragStart} style={style}>button</button>
+            <button className='Button' draggable='true' onDragStart={onDragStart} style={style}>
+                <span className='Center'>button</span>
+            </button>
+        );
+    }
+});
+
+
+// Structure
+var GridModule = React.createClass({
+    render: function () {
+        var style = clone(Config.customStyle.grid);
+
+        // Triggerred by input from specs
+        EventCenter.bind('updateView', (function(self){
+            return function (attr, value) {
+                EventCenter.unbind('updateView');
+                self.setState({}); // Refresh module
+            }
+        })(this));
+
+        // Feed formulated object
+        var onDragStart = function (event) {
+            var drag_id = 'drop_'+EventCenter.drag_cnt;
+            var elem = <button style={style} key={drag_id}>
+                            <span className='Center'>button</span>
+                       </button>;
+            EventCenter.trigger('onDragStart', elem);
+        }
+
+        return (
+            <button draggable='true' onDragStart={onDragStart} style={style}><span className='Center'>button</span></button>
         );
     }
 });
@@ -250,7 +293,7 @@ var GeneratorPreview = React.createClass({
         var module;
         switch (this.props.mode) {
             case 'button':
-                module = <ButtonModule test={'hello'}/>;
+                module = <ButtonModule />;
                 break;
             case 'card':
                 module = <div className="Card">{'card'}</div>;
