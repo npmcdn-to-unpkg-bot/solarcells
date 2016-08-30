@@ -5,9 +5,9 @@ MicroEvent.prototype = {
     },
     bind: function(event, fct) {
         // Init at start or when all listeners removed
-        this._events = this._events || {};                  // Wrap all events
-        this._events[event] = this._events[event] || [];    // Add this event
-        this._events[event].push(fct);                      // Bind function to this event
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(fct);
     },
     unbind: function(event, fct) {
         this._events = this._events || {};
@@ -25,20 +25,24 @@ MicroEvent.prototype = {
 
 var EventCenter = new MicroEvent();
 
+// DnD
 var Buffer = [];
+
+EventCenter.drag_cnt = 0;
 
 EventCenter.bind('onDragStart', function (module) {
     Buffer.push(module);
-    console.log(Buffer);
-    EventCenter.bind('onDropFilter', function (append){
+    this.drag_cnt+=1;
+    console.log(Buffer, this.drag_cnt);
+    EventCenter.bind('onDropFilter', function (parent){
         EventCenter.unbind('onDropFilter');
-        append(Buffer.pop(0));
+        parent.append(Buffer.pop(0), parent);
     });
 });
 
 
 
-
+//Utils
 var clone = function (obj) {
     return JSON.parse(JSON.stringify(obj));
 }
@@ -225,7 +229,9 @@ var ButtonModule = React.createClass({
         })(this));
 
         var onDragStart = function (event) {
-            EventCenter.trigger('onDragStart', React.createElement('button', {style: style}, 'button'));
+            var drag_id = 'drop_'+EventCenter.drag_cnt;
+            var elem = React.createElement('button', {style: style, key: drag_id}, 'button');
+            EventCenter.trigger('onDragStart', elem);
         }
 
         return (
@@ -308,18 +314,19 @@ var Gear = React.createClass({
     drop: function (event) {
         console.log(this.props);
         event.preventDefault();
-        EventCenter.trigger('onDropFilter', this.append);
+        EventCenter.trigger('onDropFilter', this);
     },
     onDragOver: function (event) {
         event.preventDefault();
     },
-    append: function (newChild) {
+    append: function (newChild, self) {
+        var childrenArray = this.state.children.slice(0);
+        childrenArray.push(newChild);
         this.setState({
-            children: [newChild]
+            children: childrenArray
         });
     },
     render: function () {
-
         return (
             <div className={this.props.className} onDrop={this.drop} onDragOver={this.onDragOver}>
                 {this.state.children}
@@ -340,14 +347,14 @@ var Layout = React.createClass({
         //     var lvl = depth[i];
         //     console.log(this.state[lvl]);
         // }
-        var drop = function (event) {
-            event.preventDefault();
-            EventCenter.trigger('onDropFilter', event.target);
-        }
-        var onDragOver = function (event) {
-            event.preventDefault();
-        }
-        var base = <div onDrop={drop} onDragOver={onDragOver}>hello world</div>;
+        // var drop = function (event) {
+        //     event.preventDefault();
+        //     EventCenter.trigger('onDropFilter', event.target);
+        // }
+        // var onDragOver = function (event) {
+        //     event.preventDefault();
+        // }
+        // var base = <div onDrop={drop} onDragOver={onDragOver}>hello world</div>;
         return (
             <Gear className='main-view Box' />
         );

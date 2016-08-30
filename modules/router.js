@@ -25,17 +25,16 @@ Router.prototype = {
     servePage: function(req, res) {
         switch (req.url) {
             case '/':
-                this.testHandler(req, res);
+                this.homeHandler(req, res);
                 break;
             case '/echo':
                 this.echoHandler(req, res);
                 break;
             case '/favicon.ico':
-                res.statusCode = 200;
-                res.end();
-                break;
-            case '/test':
-                this.testHandler(req, res);
+                res.writeHead(200, {
+                    'Content-Type': 'application/json',
+                })
+                res.end(null, 'utf-8');
                 break;
             default:
                 res.statusCode = 404;
@@ -72,7 +71,7 @@ Router.prototype.echoHandler = function (req, res) {
     });
 };
 
-Router.prototype.testHandler = function (req, res) {
+Router.prototype.homeHandler = function (req, res) {
     var body = [];
     req.on('error', function(err){
         Utils.report('test handler', err);
@@ -91,27 +90,6 @@ Router.prototype.testHandler = function (req, res) {
         });
     });
 };
-
-Router.prototype.homepageHandler = function (req, res) {
-    var body = [];
-    req.on('error', function(err){
-        Utils.report('home handler', err);
-    }).on('data', function(chunk){
-        body.push(chunk);
-    }).on('end', function(){
-        body = Buffer.concat(body).toString();
-
-        var file = File.get('test/test.html');
-        file.once('ready', function(content, type){
-            res.writeHead(200, {
-                'Content-Type': type
-            });
-            res.end(content, 'utf-8');
-            file = null;
-        });
-    });
-};
-
 
 
 module.exports = new Router();
