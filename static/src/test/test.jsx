@@ -1,8 +1,8 @@
 var MicroEvent = function () {};
 MicroEvent.prototype = {
-    _events: function () {
-        console.log(this._events);
-    },
+    // _events: function () {
+    //     console.log(this._events);
+    // },
     bind: function(event, fct) {
         // Init at start or when all listeners removed
         this._events = this._events || {};
@@ -20,6 +20,15 @@ MicroEvent.prototype = {
         for (var i = 0; i < this._events[event].length; i++) {
             this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
         }
+    },
+    once: function(event) {
+        this.events = this._events || {};
+        if (event in this._events === false) return;
+        if (typeof this._events[event][0] === 'undefined') return;
+        for (var i = 0; i < this._events[event].length; i++) {
+            this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
+            this.unbind(event, this._events[event][i]);
+        } // Fire and unbind all fcts unber the event
     }
 };
 
@@ -33,10 +42,10 @@ EventCenter.drag_cnt = 0;
 EventCenter.bind('onDragStart', function (module) {
     Buffer.push(module);
     this.drag_cnt+=1;
-    console.log(Buffer, this.drag_cnt);
     EventCenter.bind('onDropFilter', function (parent){
-        EventCenter.unbind('onDropFilter');
-        parent.append(Buffer.pop(0), parent);
+        // EventCenter.unbind('onDropFilter');
+        parent.append(Buffer.pop(), parent);
+        Buffer.length = 0;
     });
 });
 
@@ -286,7 +295,7 @@ var GridModule = React.createClass({
         var onDragStart = function (event) {
             var drag_id = 'drop_'+EventCenter.drag_cnt;
             var bannerman = <span className='Center' key='0'>Content</span>;
-            var elem = <Gear className='Grid' style={style} key={drag_id} bannermen={[bannerman]}>
+            var elem = <Gear className='Grid Gear' style={style} key={drag_id} bannermen={[bannerman]}>
                        </Gear>;
             EventCenter.trigger('onDragStart', elem);
         }
@@ -375,7 +384,7 @@ var Gear = React.createClass({
     },
     drop: function (event) {
         event.preventDefault();
-        EventCenter.trigger('onDropFilter', this);
+        EventCenter.once('onDropFilter', this);
     },
     onDragOver: function (event) {
         event.preventDefault();
