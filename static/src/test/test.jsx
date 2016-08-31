@@ -64,11 +64,13 @@ var Config = {
             cursor: 'pointer'
         },
         'grid': {
-            position: 'relative;',
+            position: 'relative',
             width: '100%',
-            background: '#fd7f7f',
+            background: '#b9b9b9',
+            padding: '120px 180px',
             display: 'block',
             overflow: 'auto',
+            boxSizing: 'border-box'
         }
     },
     modules: {
@@ -97,6 +99,7 @@ var ModuleNav = React.createClass({
 
         var structure = ['structure', 'component'].map(function(categ, i){
             var load = function () {
+                EventCenter.unbind('updateView');
                 self.props.load(categ, Config.modules[categ][0]);
             }
             if (categ == c_categ) {
@@ -112,6 +115,7 @@ var ModuleNav = React.createClass({
         };
         var component = self.props.modules.map(function(name, i){
             var load = function () {
+                EventCenter.unbind('updateView');
                 self.props.load(c_categ, name);
             }
             if (name == c_name) {
@@ -139,6 +143,11 @@ var LiveInput = React.createClass({
             text: this.props.params
         }
     },
+    componentWillReceiveProps: function(nextProps) {
+        this.setState({
+            text: nextProps.params
+        });
+    },
     onChange: function(e) {
         var attr = this.props.name;
         var value = e.target.value;
@@ -147,8 +156,8 @@ var LiveInput = React.createClass({
         });
         if (!Number(value)) {
             Config['customStyle'][this.props.mode][attr] = value;
-            EventCenter.trigger('updateView');
         }
+        EventCenter.trigger('updateView');
     },
     render: function () {
         return (
@@ -157,22 +166,23 @@ var LiveInput = React.createClass({
                     <span>{this.props.name}&nbsp;&nbsp;</span>
                 </th>
                 <th>
-                    <input onChange={this.onChange} value={this.state.text}/>
+                    <input onChange={this.onChange} value={this.state.text} />
                 </th>
             </tr>
         );
     }
 });
 
-var ButtonSpecs = React.createClass({
+var Specs = React.createClass({
     render: function () {
-        var style = Config['defaultStyle']['button'];
+        var mode = this.props.mode;
+        var style = Config['defaultStyle'][mode];
         var attr = Object.keys(style);
         var inputGroup = [];
         for (var i = 0; i < attr.length; i++) {
             var key = attr[i];
             inputGroup.push(
-                <LiveInput mode={'button'} name={key} params={style[key]} key={i}/>
+                <LiveInput mode={mode} name={key} params={style[key]} key={i} />
             );
         }
         return (
@@ -190,7 +200,10 @@ var ModuleManager = React.createClass({
         var module;
         switch (this.props.mode.module) {
             case 'button':
-                module = <Specs />
+                module = <Specs mode='button'/>
+                break;
+            case 'grid':
+                module = <Specs mode='grid'/>
                 break;
             default:
                 module = <div className='Box'>{this.props.mode.module}</div>
@@ -226,13 +239,14 @@ var GeneratorSpecs = React.createClass({
 });
 
 
+
 // Component
 var ButtonModule = React.createClass({
     render: function () {
         var style = clone(Config.customStyle.button);
 
         EventCenter.bind('updateView', (function(self){
-            return function (attr, value) {
+            return function () {
                 EventCenter.unbind('updateView');
                 self.setState({});
             }
@@ -262,7 +276,7 @@ var GridModule = React.createClass({
 
         // Triggerred by input from specs
         EventCenter.bind('updateView', (function(self){
-            return function (attr, value) {
+            return function () {
                 EventCenter.unbind('updateView');
                 self.setState({}); // Refresh module
             }
@@ -271,14 +285,16 @@ var GridModule = React.createClass({
         // Feed formulated object
         var onDragStart = function (event) {
             var drag_id = 'drop_'+EventCenter.drag_cnt;
-            var elem = <button style={style} key={drag_id}>
-                            <span className='Center'>button</span>
-                       </button>;
+            var bannerman = <span className='Center' key='0'>Content</span>;
+            var elem = <Gear className='Grid' style={style} key={drag_id} bannermen={[bannerman]}>
+                       </Gear>;
             EventCenter.trigger('onDragStart', elem);
         }
 
         return (
-            <button draggable='true' onDragStart={onDragStart} style={style}><span className='Center'>button</span></button>
+            <div className='Grid' draggable='true' onDragStart={onDragStart} style={style}>
+                <span className='Center'>Content</span>
+            </div>
         );
     }
 });
@@ -294,6 +310,9 @@ var GeneratorPreview = React.createClass({
         switch (this.props.mode) {
             case 'button':
                 module = <ButtonModule />;
+                break;
+            case 'grid':
+                module = <GridModule />;
                 break;
             case 'card':
                 module = <div className="Card">{'card'}</div>;
@@ -319,8 +338,8 @@ var Generator = React.createClass({
     _cnt: 0,
     getInitialState: function(){
         return {
-            categ: 'component',
-            module: 'button'
+            categ: 'structure',
+            module: 'grid'
         }
     },
     loadModule: function(categ, module) {
@@ -335,7 +354,7 @@ var Generator = React.createClass({
         var mode = clone(this.state);
         return (
             <div>
-                <GeneratorSpecs modules={Config.modules[mode.categ]} mode={mode}
+                <GeneratorSpecs modules={Config.modules[mode.categ]} mode={this.state}
                     load={this.loadModule} />
                 <GeneratorPreview mode={this.state.module}/>
             </div>
@@ -351,11 +370,10 @@ ReactDOM.render(
 var Gear = React.createClass({
     getInitialState: function() {
         return {
-            children: [<div className='Row' key={1}>hello</div>, <div className='Row' key={2}>hello again</div>]
+            children: this.props.bannermen
         }
     },
     drop: function (event) {
-        console.log(this.props);
         event.preventDefault();
         EventCenter.trigger('onDropFilter', this);
     },
@@ -371,7 +389,7 @@ var Gear = React.createClass({
     },
     render: function () {
         return (
-            <div className={this.props.className} onDrop={this.drop} onDragOver={this.onDragOver}>
+            <div className={this.props.className} style={this.props.style} onDrop={this.drop} onDragOver={this.onDragOver}>
                 {this.state.children}
             </div>
         );
@@ -379,27 +397,10 @@ var Gear = React.createClass({
 });
 
 var Layout = React.createClass({
-//     getInitialState: function () {
-//         return {
-//             dom: <div className='main-view Box' onDrop={()}>hello</div>
-//         }
-//     },
     render: function () {
-        // var depth = Object.keys(this.state);
-        // for (var i = 0; i < depth.length; i++) {
-        //     var lvl = depth[i];
-        //     console.log(this.state[lvl]);
-        // }
-        // var drop = function (event) {
-        //     event.preventDefault();
-        //     EventCenter.trigger('onDropFilter', event.target);
-        // }
-        // var onDragOver = function (event) {
-        //     event.preventDefault();
-        // }
-        // var base = <div onDrop={drop} onDragOver={onDragOver}>hello world</div>;
+        var bannermen = [];
         return (
-            <Gear className='main-view Box' />
+            <Gear className='main-view Box' bannermen={bannermen}  />
         );
     }
 });
