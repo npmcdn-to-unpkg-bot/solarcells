@@ -34,7 +34,7 @@ MicroEvent.prototype = {
 
 var EventCenter = new MicroEvent();
 
-// DnD
+// DnD module
 var Buffer = [];
 
 EventCenter.drag_cnt = 0;
@@ -263,7 +263,7 @@ var ButtonModule = React.createClass({
 
         var onDragStart = function (event) {
             var drag_id = 'drop_'+EventCenter.drag_cnt;
-            var elem = <button className='Button' style={style} key={drag_id}>
+            var elem = <button className='Button' id={drag_id} style={style} key={drag_id}>
                             <span className='Center'>button</span>
                        </button>;
             EventCenter.trigger('onDragStart', elem);
@@ -295,7 +295,7 @@ var GridModule = React.createClass({
         var onDragStart = function (event) {
             var drag_id = 'drop_'+EventCenter.drag_cnt;
             var bannerman = <span className='Center' key='0'>Content</span>;
-            var elem = <Gear className='Grid Gear' style={style} key={drag_id} bannermen={[bannerman]}>
+            var elem = <Gear className='Grid Gear' id={drag_id} style={style} key={drag_id} bannermen={[bannerman]}>
                        </Gear>;
             EventCenter.trigger('onDragStart', elem);
         }
@@ -379,7 +379,8 @@ ReactDOM.render(
 var Gear = React.createClass({
     getInitialState: function() {
         return {
-            children: this.props.bannermen
+            children: this.props.bannermen,
+            mode: 'display'
         }
     },
     drop: function (event) {
@@ -393,12 +394,27 @@ var Gear = React.createClass({
         var childrenArray = this.state.children.slice(0);
         childrenArray.push(newChild);
         this.setState({
-            children: childrenArray
+            children: childrenArray,
+            mode: this.state.mode
+        });
+    },
+    componentDidMount: function () {
+        var self = this;
+        if (self.props.id === 'drop_base') return;
+        $('#'+self.props.id).bind('mouseenter', function(){
+            console.log(self.props.id+' visited');
+            self.setState({
+                children: self.state.children,
+                mode: 'edit'
+            })
+        });
+        $('#'+self.props.id).bind('mouseleave', function(){
+            console.log(self.props.id+' flying away');
         });
     },
     render: function () {
         return (
-            <div className={this.props.className} style={this.props.style} onDrop={this.drop} onDragOver={this.onDragOver}>
+            <div className={this.props.className} id={this.props.id} style={this.props.style} onDrop={this.drop} onDragOver={this.onDragOver}>
                 {this.state.children}
             </div>
         );
@@ -409,7 +425,7 @@ var Layout = React.createClass({
     render: function () {
         var bannermen = [];
         return (
-            <Gear className='main-view Box' bannermen={bannermen}  />
+            <Gear className='main-view Box' id={'drop_base'} bannermen={bannermen}  />
         );
     }
 });
