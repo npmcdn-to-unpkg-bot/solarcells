@@ -1,104 +1,16 @@
-var MicroEvent = function () {};
-MicroEvent.prototype = {
-    // _events: function () {
-    //     console.log(this._events);
-    // },
-    bind: function(event, fct) {
-        // Init at start or when all listeners removed
-        this._events = this._events || {};
-        this._events[event] = this._events[event] || [];
-        this._events[event].push(fct);
-    },
-    unbind: function(event, fct) {
-        this._events = this._events || {};
-        if (event in this._events === false) return;
-        this._events[event].splice(this._events[event].indexOf(fct), 1);
-    },
-    trigger: function(event) {
-        this._events = this._events || {};
-        if (event in this._events === false) return;
-        for (var i = 0; i < this._events[event].length; i++) {
-            this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
-        }
-    },
-    once: function(event) {
-        this.events = this._events || {};
-        if (event in this._events === false) return;
-        if (typeof this._events[event][0] === 'undefined') return;
-        for (var i = 0; i < this._events[event].length; i++) {
-            this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
-            this.unbind(event, this._events[event][i]);
-        } // Fire and unbind all fcts unber the event
-    }
-};
-
+// imported utils & config
 var EventCenter = new MicroEvent();
 
-// DnD module
-var Buffer = [];
-
-EventCenter.drag_cnt = 0;
-
 EventCenter.bind('onDragStart', function (module) {
-    Buffer.push(module);
+    Buffer.drag = module;
     this.drag_cnt+=1;
-    EventCenter.bind('onDropFilter', function (parent){
-        // EventCenter.unbind('onDropFilter');
-        parent.append(Buffer.pop(), parent);
-        Buffer.length = 0;
+    EventCenter.update('onDropFilter', function (parent){
+        parent.append(Buffer.drag, parent);
     });
 });
 
 
 
-//Utils
-var clone = function (obj) {
-    return JSON.parse(JSON.stringify(obj));
-}
-
-var Config = {
-    defaultStyle: {
-        'button': {
-            padding: "100px",
-            outline: "0",
-            borderRadius: "50%",
-            border: "0",
-            boxShadow: "0",
-            fontSize: "30px",
-            background: "#7fb981",
-            color: "white",
-            opacity: 0.6,
-            fontFamily: "'Raleway', sans-serif",
-            position: 'relative',
-            cursor: 'pointer'
-        },
-        'grid': {
-            position: 'relative',
-            width: '100%',
-            background: '#b9b9b9',
-            padding: '120px 180px',
-            display: 'block',
-            overflow: 'auto',
-            boxSizing: 'border-box'
-        }
-    },
-    modules: {
-        'structure': ['grid', 'row', 'box'],
-        'component': ['card', 'button', 'span', 'input']
-    }
-
-};
-
-Config['customStyle'] = Config['defaultStyle'];
-
-
-
-
-$(document).ready(function(){
-    $('#preload-content').css({
-        opacity:1
-    });
-});
 
 var ModuleNav = React.createClass({
     render: function () {
@@ -391,31 +303,88 @@ var Gear = React.createClass({
         event.preventDefault();
     },
     append: function (newChild, self) {
-        var childrenArray = this.state.children.slice(0);
+        var childrenArray = self.state.children.slice(0);
         childrenArray.push(newChild);
-        this.setState({
+        console.log(self.props.id, childrenArray);
+        self.setState({
             children: childrenArray,
-            mode: this.state.mode
+            mode: self.state.mode
+        });
+    },
+    deleteFromParent: function () {
+        var self = Buffer.highlight.pop();
+        var parentModule;
+        if (Buffer.highlight.length === 0) {
+            console.log('At root');
+            parentModule = Buffer.root;
+        } else {
+            parentModule = Buffer.highlight.slice(-1).pop();
+        }
+        console.log(parentModule.props.id, self.props.id);
+        var childrenArray = parentModule.state.children.slice(0);
+        console.log(childrenArray);
+        var query_self = childrenArray.map(function(child){
+            return child.props.id;
+        });
+        var index = query_self.indexOf(self.props.id);
+        childrenArray.pop(index);
+        parentModule.setState({
+            children: childrenArray,
+            mode: parentModule.state.mode
         });
     },
     componentDidMount: function () {
         var self = this;
         if (self.props.id === 'drop_base') return;
         $('#'+self.props.id).bind('mouseenter', function(){
-            console.log(self.props.id+' visited');
+            // Dim the previous module
+            // console.log(self.props.id, 'enter');
+            if (Buffer.highlight.length !== 0) {
+                var prevModule = Buffer.highlight.slice(-1).pop();
+                prevModule.setState({
+                    children: prevModule.state.children,
+                    mode: 'display'
+                });
+            }
             self.setState({
                 children: self.state.children,
                 mode: 'edit'
-            })
+            });
+            Buffer.highlight.push(self);
         });
         $('#'+self.props.id).bind('mouseleave', function(){
-            console.log(self.props.id+' flying away');
+            // Highlight the previous module
+            // console.log(self.props.id, 'leave');
+            Buffer.highlight.pop();
+            self.setState({
+                children: self.state.children,
+                mode: 'display'
+            });
+            if (Buffer.highlight.length !== 0) {
+                var prevModule = Buffer.highlight.slice(-1).pop();
+                prevModule.setState({
+                    children: prevModule.state.children,
+                    mode: 'edit'
+                });
+            }
         });
     },
     render: function () {
+        var children = this.state.children.slice();
+        var className = this.props.className;
+        if (this.props.id === 'drop_base') Buffer.root = this;
+            if (this.state.mode === 'edit') {
+            children.push(
+                <button className='delete' key={'delete'} onClick={this.deleteFromParent}>
+                    &#x2715;
+                </button>
+            );
+            className+= ' edit'
+        }
+
         return (
-            <div className={this.props.className} id={this.props.id} style={this.props.style} onDrop={this.drop} onDragOver={this.onDragOver}>
-                {this.state.children}
+            <div className={className} id={this.props.id} style={this.props.style} onDrop={this.drop} onDragOver={this.onDragOver}>
+                {children}
             </div>
         );
     }
