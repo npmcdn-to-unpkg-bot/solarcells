@@ -8,7 +8,9 @@ body {
 table {
     width: 100%;
     padding: 10px 0px;
-    background: rgba(236, 211, 229, 0.1);
+    /*background: rgba(236, 211, 229, 0.1);*/
+    background: rgba(213, 241, 205, 0.30);
+    border-radius: 0px 0px 5px 5px;
 }
 
 
@@ -71,7 +73,9 @@ contain {
 .Grid {
     position: relative;
 	width: 100%;
-	background: #fd7f7f;
+	/*background: #fd7f7f;*/
+    background: #cac798;
+
 	display:block;
     overflow: auto;
 }
@@ -81,7 +85,7 @@ contain {
 	width: 50%;
     padding: 10px 5px 10px 10px;
     box-sizing: border-box;
-	background: gray;
+	background: #888888;
 	display:block;
     float:left;
 }
@@ -122,26 +126,30 @@ contain {
 }
 
 .Row button:hover {
-    background: rgba(175,125,125,0.5);
+    /*background: rgba(175,125,125,0.5);*/
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .Row button {
     width: 50%;
-    background: rgba(35,17,17,0.25);
+    /*background: rgba(35,17,17,0.25);*/
+    background: rgba(84, 84, 84, 0.25);
     transition: all 0.6s ease;
 }
 .Row .active {
-    background: rgba(175,125,125,0.8);
+    background: rgba(10, 10, 10, 0.5);
+    /*background: rgba(175,125,125,0.8);*/
 }
 
 #generator > div > .Card {
-    height: 45vh;
+    height: 36vh;
     padding: 0;
     overflow-y: hidden;
 }
 
 #module-nav {
     background: transparent;
+    border-radius: 5px 5px 0px 0px;
 }
 
 #module-nav .Row {
@@ -149,7 +157,9 @@ contain {
 }
 
 #layout .main-view {
-    background: rgba(255,0,0,0.2);
+    /*background: rgba(38, 43, 86, 0.76);*/
+    background: white;
+    /*background: rgba(255,0,0,0.2);*/
     position: relative;
     width: 100%;
     min-height: 100%;
@@ -192,6 +202,33 @@ contain {
     -webkit-filter: brightness(90%);
     filter: brightness(90%);
 }
+
+#select, #delete {
+    position: absolute;
+    top: 57vh;
+    right: 88px;
+}
+
+#delete {
+    right: 36px;
+}
+
+#select button, #delete button {
+    border: 0;
+    border-radius: 8px;
+    height: 45px;
+    width: 45px;
+    padding: 0;
+    color: white;
+    background: rgba(125, 3, 0, 0.17);
+    outline: 0 !important;
+}
+
+#select .active, #delete .active {
+    background: rgb(60, 62, 58);
+    outline: 0 !important;
+}
+
 
 /*button:active {
     transform: translateY(3px);

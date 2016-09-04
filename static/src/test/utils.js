@@ -42,4 +42,8 @@ MicroEvent.prototype.drag_cnt = 0;
 
 var clone = function (obj) {
     return JSON.parse(JSON.stringify(obj));
-}
+};
+
+// var extend = function (prev, new) {
+//
+// };
