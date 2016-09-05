@@ -25,14 +25,17 @@ var Config = {
             boxSizing: 'border-box'
         }
     },
+    'customStyle': {
+        'button': {},
+        'grid': {},
+    },
     modules: {
         'structure': ['grid', 'row', 'box'],
         'component': ['card', 'button', 'span', 'input']
     }
-
 };
 
-Config['customStyle'] = Config['defaultStyle'];
+// Config['customStyle'] = Config['defaultStyle'];
 
 var Buffer = {
     drag: {},

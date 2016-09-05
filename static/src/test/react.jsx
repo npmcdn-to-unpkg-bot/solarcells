@@ -10,11 +10,6 @@ EventCenter.bind('onDragStart', function (createModule) {
     });
 });
 
-// setInterval(function(){
-//     console.log(Buffer.highlight);
-// }, 2000);
-
-
 
 var ModuleNav = React.createClass({
     render: function () {
@@ -79,6 +74,7 @@ var LiveInput = React.createClass({
         this.setState({
             text: value
         });
+        // Skip update when input is int
         if (!Number(value)) {
             Config['customStyle'][this.props.mode][attr] = value;
         }
@@ -101,7 +97,7 @@ var LiveInput = React.createClass({
 var Specs = React.createClass({
     render: function () {
         var mode = this.props.mode;
-        var style = Config['defaultStyle'][mode];
+        var style = extend(Config['defaultStyle'][mode], Config['customStyle'][mode]);
         var attr = Object.keys(style);
         var inputGroup = [];
         for (var i = 0; i < attr.length; i++) {
@@ -173,16 +169,16 @@ var ButtonModule = React.createClass({
         var bannerman = <button className='Button' style={style} key={drag_id}>
                             <span className='Center'>button</span>
                        </button>;
-        var elem = <Gear className='Box Gear' id={drag_id} style={style} key={drag_id} remove={remove} changeParentMode={changeParentMode}
-                            bannermen={[bannerman]}>
-                   </Gear>
+        var elem = <Capsule className='Box Capsule' id={drag_id} style={style} key={drag_id} remove={remove}
+                     changeParentMode={changeParentMode} bannermen={[bannerman]}>
+                   </Capsule>
         return elem;
     },
     onDragStart: function (event) {
         EventCenter.trigger('onDragStart', this.sendComponent);
     },
     render: function () {
-        var style = clone(Config.customStyle.button);
+        var style = extend(Config.defaultStyle.button, Config.customStyle.button);
 
         EventCenter.bind('updateView', (function(self){
             return function () {
@@ -202,20 +198,23 @@ var ButtonModule = React.createClass({
 
 // Structure
 var GridModule = React.createClass({
+    // Init component with drop-parent attrs
     sendComponent: function (remove, changeParentMode) {
         var style = clone(Config.customStyle.grid);
         var drag_id = 'drop_'+EventCenter.drag_cnt;
         var bannerman = <span className='Center' key='0'>Content</span>;
-        var elem = <Gear className='Grid Gear' id={drag_id} style={style} key={drag_id} remove={remove}
+        var elem = <Capsule className='Grid Capsule' id={drag_id} style={style} key={drag_id} remove={remove}
                         changeParentMode={changeParentMode} bannermen={[bannerman]}>
-                   </Gear>;
+                   </Capsule>;
         return elem;
     },
+    // Cache the 'make component' method
     onDragStart: function (event) {
         EventCenter.trigger('onDragStart', this.sendComponent);
     },
     render: function () {
-        var style = clone(Config.customStyle.grid);
+        // Merge custom with default
+        var style = extend(Config.defaultStyle.grid, Config.customStyle.grid);
 
         // Triggerred by input from specs
         EventCenter.bind('updateView', (function(self){
@@ -224,11 +223,6 @@ var GridModule = React.createClass({
                 self.setState({}); // Refresh module
             }
         })(this));
-
-        // Feed formulated object
-        var onDragStart = function (event) {
-
-        }
 
         return (
             <div className='Grid' draggable='true' onDragStart={this.onDragStart} style={style}>
@@ -246,6 +240,8 @@ var GeneratorPreview = React.createClass({
     render: function () {
         var style = {};
         var module;
+        // Load modules on mode
+        // Modules that display and reproduce
         switch (this.props.mode) {
             case 'button':
                 module = <ButtonModule />;
@@ -281,6 +277,7 @@ var Generator = React.createClass({
             module: 'grid'
         }
     },
+    // Reload different types of components
     loadModule: function(categ, module) {
         return this.setState({
             categ: categ,
@@ -306,11 +303,11 @@ ReactDOM.render(
     document.getElementById('generator')
 );
 
-var Gear = React.createClass({
+var Capsule = React.createClass({
     getInitialState: function() {
         return {
             children: this.props.bannermen,
-            mode: 'display'
+            mode: 'idle'
         }
     },
     drop: function (event) {
@@ -323,25 +320,29 @@ var Gear = React.createClass({
     append: function (newChild, self) {
         var childrenArray = self.state.children.slice(0);
         childrenArray.push(newChild);
-        console.log(self.props.id, childrenArray);
+        // console.log(self.props.id, childrenArray);
+
+        // Prep for setting parent to idle
         self.setState({
             children: childrenArray,
-            mode: self.state.mode
+            mode: 'exit'
         });
     },
     remove: function (id) {
-        Buffer.highlight.pop();
+        var id = Buffer.highlight.pop().props.id;
         var childrenArray = this.state.children.slice(0);
         var query_self = childrenArray.map(function(child){
+            console.log(child.props.id);
             return child.props.id;
         });
         var index = query_self.indexOf(id);
-        childrenArray.pop(index);
+        childrenArray.splice(index, 1);
         this.setState({
             children: childrenArray,
             mode: this.state.mode
         });
     },
+    // Deprecated
     changeMode: function (mode) {
         if (this.props.id === 'drop_base') return;
         this.setState({
@@ -349,79 +350,61 @@ var Gear = React.createClass({
             mode: mode
         });
     },
-    // deleteFromParent: function () {
-    //     var self = Buffer.highlight.pop();
-    //     var parentModule;
-    //     if (Buffer.highlight.length === 0) {
-    //         parentModule = Buffer.root;
-    //     } else {
-    //         parentModule = Buffer.highlight.slice(-1).pop();
-    //     }
-    //     // Delete logic fix || TODO: delete one element once
-    //     if (parentModule.props.id === self.props.id) {
-    //         console.log('called', Buffer.highlight);
-    //         Buffer.highlight.pop();
-    //         if (Buffer.highlight.length === 0) {
-    //             parentModule = Buffer.root;
-    //         } else {
-    //             parentModule = Buffer.highlight.slice(-1).pop();
-    //         }
-    //     }
-    //     console.log(parentModule.props.id, self.props.id);
-    //     var childrenArray = parentModule.state.children.slice(0);
-    //     var query_self = childrenArray.map(function(child){
-    //         return child.props.id;
-    //     });
-    //     var index = query_self.indexOf(self.props.id);
-    //     childrenArray.pop(index);
-    //     parentModule.setState({
-    //         children: childrenArray,
-    //         mode: parentModule.state.mode
-    //     });
-    // },
     mouseEnter: function () {
-        if (Buffer.highlight.length !== 0) {
-            this.props.changeParentMode('display');
-        }
+        var mode = 'active';
+        // Set parent to idle on drop
+        if (this.state.mode === 'exit') mode='idle';
         this.setState({
             children: this.state.children,
-            mode: 'edit'
+            mode: mode
         });
         Buffer.highlight.push(this);
-        // console.log('pushing');
+        console.log(this.props.id, 'pushing');
     },
     mouseLeave: function () {
         Buffer.highlight.pop();
-        // console.log('popping');
+        console.log(this.props.id, 'popping');
         this.setState({
             children: this.state.children,
-            mode: 'display'
+            mode: 'idle'
         });
-        if (Buffer.highlight.length !== 0) {
-            this.props.changeParentMode('edit');
-        }
     },
     componentDidMount: function () {
         var self = this;
-        if (self.props.id === 'drop_base') return;
-        $('#'+self.props.id).bind('mouseenter', self.mouseEnter);
-        $('#'+self.props.id).bind('mouseleave', self.mouseLeave);
+        var id = self.props.id;
+        var dom = $('#'+id);
+        if (id === 'drop_base') return;
+        dom.unbind('mouseenter');
+        dom.unbind('mouseleave');
+        dom.bind('mouseenter', self.mouseEnter);
+        dom.bind('mouseleave', self.mouseLeave);
     },
     render: function () {
         var children = this.state.children.slice();
         var className = this.props.className;
         if (this.props.id === 'drop_base') Buffer.root = this;
-        if (this.state.mode === 'edit') {
-            var self = this;
-            var remove = function () {
-                self.props.remove(self.props.id);
+        if (this.state.mode === 'active') {
+            // console.log(this.props, 'refreshing');
+            if (Buffer.editorMode === 'remove') {
+                var self = this;
+                children.push(
+                    <button className='delete' key={'delete'} onClick={self.props.remove}>
+                        &#x2715;
+                    </button>
+                );
+                className+= ' remove';
+            } else if (Buffer.editorMode === 'select') {
+                var self = this;
+                var remove = function () {
+                    // self.props.edit(self.props.id);
+                }
+                children.push(
+                    <button className='edit' key={'edit'}>
+                        <a></a>
+                    </button>
+                );
+                className+= ' select';
             }
-            children.push(
-                <button className='delete' key={'delete'} onClick={remove}>
-                    &#x2715;
-                </button>
-            );
-            className+= ' edit';
         }
 
         return (
@@ -433,10 +416,46 @@ var Gear = React.createClass({
 });
 
 var Layout = React.createClass({
+    getInitialState: function () {
+        return {
+            mode: 'remove'
+        };
+    },
     render: function () {
+        var self = this;
         var bannermen = [];
+        var toggleMode = function (mode) {
+            self.setState({
+                mode: mode
+            });
+        };
+        if (this.state.mode === 'select') {
+            var toggleMode = function () {self.setState({mode:'remove'})};
+            var module = <div>
+                            <div id='select'>
+                                <button className='active'>Select</button>
+                            </div>
+                            <div id='remove'>
+                                <button onClick={toggleMode}>Remove</button>
+                            </div>
+                        </div>;
+        } else if (this.state.mode === 'remove') {
+            var toggleMode = function () {self.setState({mode:'select'})};
+            var module = <div>
+                            <div id='select'>
+                                <button onClick={toggleMode}>Select</button>
+                            </div>
+                            <div id='remove'>
+                                <button className='active'>Remove</button>
+                            </div>
+                        </div>;
+        }
+        Buffer.editorMode = this.state.mode;
         return (
-            <Gear className='main-view Box' id={'drop_base'} bannermen={bannermen} />
+            <div id="view-wrap">
+                <Capsule className='main-view Box' id={'drop_base'} bannermen={bannermen} />
+                {module}
+            </div>
         );
     }
 });

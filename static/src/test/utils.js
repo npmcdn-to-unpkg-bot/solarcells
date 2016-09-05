@@ -44,6 +44,6 @@ var clone = function (obj) {
     return JSON.parse(JSON.stringify(obj));
 };
 
-// var extend = function (prev, new) {
-//
-// };
+var extend = function (prev, next) {
+    return clone($.extend(prev, next));
+};
