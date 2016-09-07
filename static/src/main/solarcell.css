@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0% 0%;
     font-family: 'Raleway', sans-serif;
+    overflow: hidden;
 }
 
 table {
@@ -11,8 +12,23 @@ table {
     /*background: rgba(236, 211, 229, 0.1);*/
     background: rgba(255, 255, 255, 0.30);
     border-radius: 0px 0px 5px 5px;
+    -webkit-user-select: none;
+    cursor: default;
+    box-shadow: 0px 0px 8px #616161;
+    margin-top: 8px;
 }
 
+table th {
+    font-weight: normal;
+}
+
+table th input {
+    vertical-align: middle;
+}
+
+table th .s-range-value {
+    width: 15%;
+}
 
 
 .btn-div {
@@ -21,6 +37,7 @@ table {
     outline: 0 !important;
     border-radius: 50%;
     border: 0;
+    -webkit-user-select: none;
     box-shadow: none;
     font-size: 30px;
     background: #7fb981;
@@ -58,6 +75,8 @@ contain {
 
 .Center {
     position: absolute;
+    min-width: 20%;
+    text-align: center;
     top: 50%;
     left: 50%;
     -webkit-transform: translateY(-50%) translateX(-50%);
@@ -123,6 +142,7 @@ contain {
     background: antiquewhite;
     color: white;
     font-family: 'Raleway', sans-serif;
+    -webkit-user-select: none;
 }
 
 .Row button:hover {
@@ -141,15 +161,28 @@ contain {
     /*background: rgba(175,125,125,0.8);*/
 }
 
-#generator > div > .Card {
+#generator {
+    transform: translate3d(0px, 0px, 0px);
+    transition: all 0.6s ease;
+}
+
+/*#generator:hover {
+    transform: translate3d(0px, 36vh, 0px);
+}*/
+
+#preview, #specs {
     height: 36vh;
     padding: 0;
     overflow-y: hidden;
 }
 
+#preview {
+    padding: 20px;
+}
+
 #module-nav {
     background: transparent;
-    box-shadow: 0px 0px 10px #616161;
+    box-shadow: 0px 0px 8px #616161;
     border-radius: 5px 5px 0px 0px;
 }
 
@@ -182,7 +215,7 @@ contain {
 }
 
 .delete {
-    position: absolute;
+    position: absolute;;
     top: 50%;
     left: 50%;
     -webkit-transform: translateY(-50%) translateX(-50%);
@@ -225,6 +258,7 @@ button:active {
     outline: 0 !important;
     font-family: 'Raleway', sans-serif;
     font-weight: bold;
+    -webkit-user-select: none;
 }
 
 #select .active, #remove .active {
@@ -296,3 +330,80 @@ button:active {
     transform: translateY(3px);
     box-shadow: 0px 0px 0px #3298ff !important;
 }*/
+
+.s-grid {
+    position: relative;
+    width: 100%;
+    background: #b9b9b9;
+    min-height: 100px;
+    padding: 10px;
+    overflow: auto;
+    display: block;
+    box-sizing: border-box;
+}
+
+.s-button {
+    position: relative;
+    padding: 50px;
+    outline: 0;
+    border: 0;
+    border-radius: 50%;
+    box-shadow: 0;
+    background: #7fb981;
+    opacity: 0.6;
+
+    font-size: 30px;
+    color: white;
+    font-family: 'Raleway', sans-serif;
+
+
+    cursor: pointer;
+    -webkit-user-select: none;
+}
+
+.s-row {
+    position: relative;
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+.s-box {
+    position: relative;
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+}
+
+.center {
+    text-align: center;
+}
+
+.left {
+    text-align: left;
+}
+
+.right {
+    text-align: right;
+}
+
+.s-box:before {
+  content: '';
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+}
+
+.s-row .s-center {
+    left: 50%;
+    top: 50%;
+    text-align: center;
+    -webkit-transform: translate3d(-50%, -50%, 0);
+    -moz-transform: translate3d(-50%, -50%, 0);
+    transform: translate3d(-50%, -50%, 0);
+}
+
+.s-box .s-center {
+    display: inline-block;
+    vertical-align: middle;
+}

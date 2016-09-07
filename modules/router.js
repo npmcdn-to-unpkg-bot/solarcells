@@ -80,7 +80,7 @@ Router.prototype.homeHandler = function (req, res) {
     }).on('end', function(){
         body = Buffer.concat(body).toString();
 
-        var file = File.get('test/test.html');
+        var file = File.get('main/solarcell.html');
         file.once('ready', function(content, type){
             res.writeHead(200, {
                 'Content-Type': type

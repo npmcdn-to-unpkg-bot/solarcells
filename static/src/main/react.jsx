@@ -75,20 +75,37 @@ var LiveInput = React.createClass({
             text: value
         });
         // Skip update when input is int
-        if (!Number(value)) {
-            Config['customStyle'][this.props.mode][attr] = value;
+        if (!Number(value) || this.props.type === 'range') {
+            if (this.props.type === 'range') {
+                Config['customStyle'][this.props.mode][attr] = value+'px';
+            } else {
+                Config['customStyle'][this.props.mode][attr] = value;
+            }
         }
         EventCenter.trigger('updateView');
     },
     render: function () {
+        var module;
+        switch (this.props.type) {
+            case 'input':
+                module = <th><input onChange={this.onChange} value={this.state.text} /></th>;
+                break;
+            case 'range':
+                module = <th>
+                            <input onChange={this.onChange} className='s-range' type="range" min="0" max="50" value={this.state.text} />
+                            <input onChange={this.onChange} className='s-range-value' value={this.state.text} />
+                        </th>;
+                break;
+            default:
+                module = <th><input onChange={this.onChange} value={this.state.text} /></th>;
+                break;
+        }
         return (
             <tr>
                 <th>
                     <span>{this.props.name}&nbsp;&nbsp;</span>
                 </th>
-                <th>
-                    <input onChange={this.onChange} value={this.state.text} />
-                </th>
+                {module}
             </tr>
         );
     }
@@ -100,10 +117,15 @@ var Specs = React.createClass({
         var style = extend(Config['defaultStyle'][mode], Config['customStyle'][mode]);
         var attr = Object.keys(style);
         var inputGroup = [];
+        // Input generate
         for (var i = 0; i < attr.length; i++) {
             var key = attr[i];
+            var type = 'input';
+            console.log(key);
+            if (key == 'fontSize') type = 'range';
+            // Mode -> Module | name -> group name | params -> [attr, value]
             inputGroup.push(
-                <LiveInput mode={mode} name={key} params={style[key]} key={i} />
+                <LiveInput mode={mode} name={key} params={style[key]} key={i} type={type}/>
             );
         }
         return (
@@ -148,7 +170,7 @@ var GeneratorSpecs = React.createClass({
             borderRadius: '1px'
         }
         return (
-            <div className="Card">
+            <div className="Card" id='specs'>
                 <div className='Box' style={style}>
                     <ModuleNav modules={this.props.modules} mode={this.props.mode}
                         load={this.props.load} />
@@ -163,19 +185,19 @@ var GeneratorSpecs = React.createClass({
 
 // Component
 var ButtonModule = React.createClass({
-    sendComponent: function (remove, changeParentMode) {
+    componentFactory: function (remove, changeParentMode) {
         var style = clone(Config.customStyle.button);
         var drag_id = 'drop_'+EventCenter.drag_cnt;
-        var bannerman = <button className='Button' style={style} key={drag_id}>
+        var bannerman = <button className='s-button' style={style} key={drag_id}>
                             <span className='Center'>button</span>
                        </button>;
-        var elem = <Capsule className='Box Capsule' id={drag_id} style={style} key={drag_id} remove={remove}
+        var elem = <Capsule className='s-box Capsule' id={drag_id} style={style} key={drag_id} remove={remove}
                      changeParentMode={changeParentMode} bannermen={[bannerman]}>
                    </Capsule>
         return elem;
     },
     onDragStart: function (event) {
-        EventCenter.trigger('onDragStart', this.sendComponent);
+        EventCenter.trigger('onDragStart', this.componentFactory);
     },
     render: function () {
         var style = extend(Config.defaultStyle.button, Config.customStyle.button);
@@ -188,9 +210,11 @@ var ButtonModule = React.createClass({
         })(this));
 
         return (
-            <button className='Button' draggable='true' onDragStart={this.onDragStart} style={style}>
-                <span className='Center'>button</span>
-            </button>
+            <div className='s-box'>
+                <button className='s-button s-center' draggable='true' onDragStart={this.onDragStart} style={style}>
+                    <span className='Center'>button</span>
+                </button>
+            </div>
         );
     }
 });
@@ -199,18 +223,18 @@ var ButtonModule = React.createClass({
 // Structure
 var GridModule = React.createClass({
     // Init component with drop-parent attrs
-    sendComponent: function (remove, changeParentMode) {
+    componentFactory: function (remove, changeParentMode) {
         var style = clone(Config.customStyle.grid);
         var drag_id = 'drop_'+EventCenter.drag_cnt;
         var bannerman = <span className='Center' key='0'>Content</span>;
-        var elem = <Capsule className='Grid Capsule' id={drag_id} style={style} key={drag_id} remove={remove}
+        var elem = <Capsule className='s-grid Capsule' id={drag_id} style={style} key={drag_id} remove={remove}
                         changeParentMode={changeParentMode} bannermen={[bannerman]}>
                    </Capsule>;
         return elem;
     },
     // Cache the 'make component' method
     onDragStart: function (event) {
-        EventCenter.trigger('onDragStart', this.sendComponent);
+        EventCenter.trigger('onDragStart', this.componentFactory);
     },
     render: function () {
         // Merge custom with default
@@ -225,8 +249,10 @@ var GridModule = React.createClass({
         })(this));
 
         return (
-            <div className='Grid' draggable='true' onDragStart={this.onDragStart} style={style}>
-                <span className='Center'>Content</span>
+            <div className='s-row'>
+                <div className='Grid s-center' draggable='true' onDragStart={this.onDragStart} style={style}>
+                    <span className='Center'>Content</span>
+                </div>
             </div>
         );
     }
@@ -260,10 +286,8 @@ var GeneratorPreview = React.createClass({
                 break;
         };
         return (
-            <div className="Card">
-                <div className='Center'>
-                    {module}
-                </div>
+            <div className="Card" id='preview'>
+                {module}
             </div>
         );
     }
@@ -389,7 +413,7 @@ var Capsule = React.createClass({
                 var self = this;
                 children.push(
                     <button className='delete' key={'delete'} onClick={self.props.remove}>
-                        &#x2715;
+                        <span>&#x2715;</span>
                     </button>
                 );
                 className+= ' remove';

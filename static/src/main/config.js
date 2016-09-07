@@ -1,8 +1,7 @@
 var Config = {
     defaultStyle: {
         'button': {
-            padding: "100px",
-            outline: "0",
+            padding: "50px",
             borderRadius: "50%",
             border: "0",
             boxShadow: "0",
@@ -10,19 +9,11 @@ var Config = {
             background: "#7fb981",
             color: "white",
             opacity: 0.6,
-            fontFamily: "'Raleway', sans-serif",
-            position: 'relative',
-            cursor: 'pointer'
         },
         'grid': {
-            position: 'relative',
             width: '100%',
             background: '#b9b9b9',
-            minHeight: '100px',
-            padding: '120px 180px',
-            display: 'block',
-            overflow: 'auto',
-            boxSizing: 'border-box'
+            padding: '10px',
         }
     },
     'customStyle': {
@@ -32,6 +23,10 @@ var Config = {
     modules: {
         'structure': ['grid', 'row', 'box'],
         'component': ['card', 'button', 'span', 'input']
+    },
+    info: {
+        button: 'Wrapped in a box element',
+        grid: 'Can be wrapped in a row element'
     }
 };
 
