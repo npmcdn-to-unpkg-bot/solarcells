@@ -17,7 +17,7 @@
     <div class='Box' id='preload' style='position:fixed;width:100vw;height:100vh;background-color:#83a783;z-index:1;
         transition:all 0.8s ease-in-out;opacity:1'>
         <div class='Center' id='preload-content' style='text-align:center;top:45%;color:white;font-size:3rem;transition:all 0.6s ease-in-out;opacity:0'>
-            <span style='cursor: default;-webkit-user-select: none;position: relative;font-family: pacifico, cursive;font-size: 160px;left: -20px;line-height: 220px;'>
+            <span style='cursor: default;-webkit-user-select: none;color: #eee; text-shadow: 5px 5px 0 #666, 7px 7px 0 #eee;position: relative;font-family: pacifico, cursive;font-size: 160px;left: -20px;line-height: 220px;'>
                 Solarcell
             </span>
             <br>
@@ -30,6 +30,30 @@
             },10)">
                 Get Started
             </button>
+        </div>
+    </div>
+    <div class='Box' id='view-compiled-html'>
+        <div class='Center' id='html-modal'>
+            <div class='Row' style='font-size:18px;'>Generated HTML</div>
+            <pre id='html-text' style='color:white;text-align:left'>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+      &lt;meta charset=&quot;UTF-8&quot; /&gt;
+      &lt;title&gt;Solarcell&lt;/title&gt;
+      &lt;link href=&quot;https://fonts.googleapis.com/css?family=Pacifico|Raleway&quot; rel=&quot;stylesheet&quot;&gt;<pre id='head-css' style='margin:0'>
+      &lt;style&gt;
+      &lt;/style&gt;</pre>
+  &lt;/head&gt;<pre id='body-html' style='margin:0'>
+  &lt;body&gt;
+  &lt;/body&gt;</pre>
+&lt;/html&gt;
+            </pre>
+            <div style='font-weight:bold;font-size:36px;'>
+                <span onclick="document.getElementById('view-compiled-html').style.opacity=0;setTimeout(function(){
+                    document.getElementById('view-compiled-html').style.visibility='hidden';
+                },10)">&#x2715;</span>
+            </div>
         </div>
     </div>
 	<div class='Grid' id='layout' style="width:100%;height:64vh;box-sizing:border-box;">

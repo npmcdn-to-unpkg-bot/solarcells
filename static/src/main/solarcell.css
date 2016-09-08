@@ -1,3 +1,5 @@
+/*---------------------- for UI ------------------------*/
+
 body {
     background: cadetblue;
     margin: 0;
@@ -161,6 +163,29 @@ contain {
     /*background: rgba(175,125,125,0.8);*/
 }
 
+#view-compiled-html {
+    position:fixed;
+    width:100vw;
+    height:100vh;
+    background-color: transparent;
+    z-index:1;
+    transition:all 0.8s ease-in-out;
+    opacity:0;
+    visibility: hidden;
+}
+
+#html-modal {
+    padding: 15px;
+    border-radius:10px;
+    box-shadow:0px 3px 3px #8e8e8e;
+    top:45%;
+    color:white;
+    background:#989898;
+    font-size:14px;
+    transition:all 0.6s ease-in-out;
+    opacity:1;
+}
+
 #generator {
     transform: translate3d(0px, 0px, 0px);
     transition: all 0.6s ease;
@@ -247,7 +272,14 @@ button:active {
     right: 36px;
 }
 
-#select button, #remove button {
+#view-compiled {
+    position: fixed;
+    top: 56vh;
+    left: 36px;
+    font-family: 'Raleway', sans-serif;
+}
+
+#select button, #remove button, #view-compiled button {
     border: 0;
     border-radius: 8px;
     height: 56px;
@@ -261,9 +293,14 @@ button:active {
     -webkit-user-select: none;
 }
 
-#select .active, #remove .active {
+#view-compiled button {
+    width: 120px;
+}
+
+#select .active, #remove .active, #view-compiled:active {
     background: rgb(60, 62, 58);
     outline: 0 !important;
+    border-radius: 8px;
 }
 
 
@@ -326,10 +363,8 @@ button:active {
     transform: rotate(-45deg);
 }
 
-/*button:active {
-    transform: translateY(3px);
-    box-shadow: 0px 0px 0px #3298ff !important;
-}*/
+
+/*--------------------- for compiled css -------------------------------*/
 
 .s-grid {
     position: relative;

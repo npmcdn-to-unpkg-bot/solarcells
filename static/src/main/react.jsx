@@ -260,8 +260,6 @@ var GridModule = React.createClass({
 
 
 
-
-
 var GeneratorPreview = React.createClass({
     render: function () {
         var style = {};
@@ -344,8 +342,6 @@ var Capsule = React.createClass({
     append: function (newChild, self) {
         var childrenArray = self.state.children.slice(0);
         childrenArray.push(newChild);
-        // console.log(self.props.id, childrenArray);
-
         // Prep for setting parent to idle
         self.setState({
             children: childrenArray,
@@ -366,7 +362,7 @@ var Capsule = React.createClass({
             mode: this.state.mode
         });
     },
-    // Deprecated
+    // Change Parent's mode on normal enter & exit
     changeMode: function (mode) {
         if (this.props.id === 'drop_base') return;
         this.setState({
@@ -376,8 +372,12 @@ var Capsule = React.createClass({
     },
     mouseEnter: function () {
         var mode = 'active';
-        // Set parent to idle on drop
+        // Set itself(as parent) to idle on drop
         if (this.state.mode === 'exit') mode='idle';
+        // Set parent to idle from children on normal enter
+        if (Buffer.highlight.length !== 0) {
+            this.props.changeParentMode('idle');
+        }
         this.setState({
             children: this.state.children,
             mode: mode
@@ -392,6 +392,9 @@ var Capsule = React.createClass({
             children: this.state.children,
             mode: 'idle'
         });
+        if (Buffer.highlight.length !== 0) {
+            this.props.changeParentMode('active');
+        }
     },
     componentDidMount: function () {
         var self = this;
@@ -453,6 +456,28 @@ var Layout = React.createClass({
                 mode: mode
             });
         };
+        var compileHTML = function () {
+            $.ajax({
+                url : 'http://jsbeautifier.org/',
+                type : 'GET',
+                data : {
+                    'body' : '<div></div>'
+                },
+                dataType:'json',
+                success : function(data) {
+                    console.log('Data: '+data);
+                },
+                error : function(request,error)
+                {
+                    console.log("Request: "+JSON.stringify(request));
+                }
+            });
+            $('#body-html').html();
+            $('#view-compiled-html').css({
+                opacity:1,
+                visibility: 'visible'
+            });
+        };
         if (this.state.mode === 'select') {
             var toggleMode = function () {self.setState({mode:'remove'})};
             var module = <div>
@@ -461,6 +486,9 @@ var Layout = React.createClass({
                             </div>
                             <div id='remove'>
                                 <button onClick={toggleMode}>Remove</button>
+                            </div>
+                            <div id='view-compiled'>
+                                <button onClick={compileHTML}>View HTML</button>
                             </div>
                         </div>;
         } else if (this.state.mode === 'remove') {
@@ -471,6 +499,9 @@ var Layout = React.createClass({
                             </div>
                             <div id='remove'>
                                 <button className='active'>Remove</button>
+                            </div>
+                            <div id='view-compiled'>
+                                <button onClick={compileHTML}>View HTML</button>
                             </div>
                         </div>;
         }
